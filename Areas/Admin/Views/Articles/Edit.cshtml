@@ -34,8 +34,55 @@
         </div>
         <div class="checkout-input-group" style="margin-bottom:24px">
             <label class="checkout-input-label">Nội dung</label>
-            <textarea asp-for="Content" class="contact-textarea" rows="8"></textarea>
+            <textarea asp-for="Content" id="article-content-editor" class="contact-textarea" rows="8"></textarea>
         </div>
         <button class="admin-add-btn" type="submit">Lưu bài viết</button>
     </form>
 </div>
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
+<script>
+    // Lab 12: Summernote cho ô "Nội dung" bài viết — onImageUpload upload ảnh thật lên
+    // server qua /Admin/Articles/UploadImage, chỉ lưu đường dẫn ảnh vào nội dung
+    // (không lưu Base64 vào CSDL, tránh làm nặng bảng Articles).
+    $(function () {
+        $('#article-content-editor').summernote({
+            height: 320,
+            placeholder: 'Nội dung bài viết...',
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['picture', 'link']],
+                ['view', ['codeview']]
+            ],
+            callbacks: {
+                onImageUpload: function (files) {
+                    var data = new FormData();
+                    data.append('file', files[0]);
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+                    data.append('__RequestVerificationToken', token);
+                    var editor = $(this);
+                    $.ajax({
+                        url: '/Admin/Articles/UploadImage',
+                        method: 'POST',
+                        data: data,
+                        processData: false,
+                        contentType: false,
+                        success: function (res) {
+                            if (res.success) {
+                                editor.summernote('insertImage', res.url);
+                            } else {
+                                alert(res.message || 'Tải ảnh thất bại.');
+                            }
+                        },
+                        error: function () {
+                            alert('Tải ảnh thất bại.');
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>

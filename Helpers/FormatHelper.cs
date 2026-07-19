@@ -35,12 +35,21 @@ namespace AHUWeb.Helpers
 
         // ===== Dùng cho trang Tin tức (Article) =====
 
+        // Bỏ thẻ HTML (nội dung giờ được soạn bằng Summernote — Lab 12) để Excerpt/
+        // ReadingMinutes/DropCap tính trên chữ thật, không lẫn ký tự thẻ <p>, <strong>...
+        public static string StripHtml(string? html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) return string.Empty;
+            var noTags = System.Text.RegularExpressions.Regex.Replace(html, "<[^>]+>", " ");
+            return System.Net.WebUtility.HtmlDecode(noTags);
+        }
+
         // Cắt gọn nội dung bài viết thành đoạn trích ngắn cho danh sách/thẻ bài viết,
         // luôn dừng ở ranh giới từ (không cắt giữa chữ) và không đè lên HTML.
         public static string Excerpt(string? content, int maxLength = 160)
         {
-            if (string.IsNullOrWhiteSpace(content)) return string.Empty;
-            var plain = content.Trim();
+            var plain = StripHtml(content).Trim();
+            if (string.IsNullOrWhiteSpace(plain)) return string.Empty;
             if (plain.Length <= maxLength) return plain;
 
             var cut = plain.Substring(0, maxLength);
@@ -52,8 +61,9 @@ namespace AHUWeb.Helpers
         // Ước tính thời gian đọc thật từ số từ trong bài (~200 từ/phút), tối thiểu 1 phút.
         public static int ReadingMinutes(string? content)
         {
-            if (string.IsNullOrWhiteSpace(content)) return 1;
-            var wordCount = content.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+            var plain = StripHtml(content);
+            if (string.IsNullOrWhiteSpace(plain)) return 1;
+            var wordCount = plain.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
             return Math.Max(1, (int)Math.Ceiling(wordCount / 200.0));
         }
 

@@ -149,6 +149,28 @@ namespace AHUWeb.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST /Admin/Products/UploadImage — Lab 12: callback onImageUpload của Summernote
+        // cho ô "Mô tả sản phẩm" (Lab 11), lưu file thật và chỉ trả về URL,
+        // không lưu Base64 vào nội dung mô tả.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Không có ảnh nào được gửi lên." });
+
+            var uploadsDir = Path.Combine(_env.WebRootPath, "images", "products", "description");
+            Directory.CreateDirectory(uploadsDir);
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return Json(new { success = true, url = $"/images/products/description/{fileName}" });
+        }
+
         // POST /Admin/Products/Delete/5 — thay cho confirmDelete()
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -212,7 +212,7 @@ function openQuickView(productId, event) {
     } else {
       qvOriginal.style.display = 'none';
     }
-    document.getElementById('qv-desc').textContent = p.description || '';
+    document.getElementById('qv-desc').innerHTML = p.description || '';
     document.getElementById('qv-qty').textContent = '1';
     document.getElementById('qv-detail-link').href = '/Product/Details/' + p.id;
 

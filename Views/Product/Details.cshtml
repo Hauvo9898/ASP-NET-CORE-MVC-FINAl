@@ -39,7 +39,7 @@
                 </div>
             </div>
             <div class="product-detail-divider"></div>
-            <p class="product-detail-desc">@Model.Description</p>
+            <div class="product-detail-desc">@Html.Raw(Model.Description)</div>
 
             @if (Model.IsComingSoon)
             {

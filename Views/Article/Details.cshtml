@@ -33,7 +33,7 @@
     // Chữ hoa lớn đầu bài chỉ đẹp khi có đủ chữ để dòng chữ bao quanh nó (khoảng
     // 3 dòng trở lên). Bài quá ngắn (như trong ảnh báo lỗi) sẽ tắt hiệu ứng này
     // để không bị vỡ layout.
-    var firstParagraph = (Model.Content ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+    var firstParagraph = FormatHelper.StripHtml(Model.Content).Trim();
     var enableDropCap = firstParagraph.Length >= 240;
 }
 <div class="journal-prose @(enableDropCap ? "has-dropcap" : "")">@Html.Raw(Model.Content)</div>
